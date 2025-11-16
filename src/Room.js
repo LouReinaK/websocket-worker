@@ -24,16 +24,28 @@ export class Room {
     }
 
     // route POST joueur -> room
-    if (request.method === "POST" && url.pathname.endsWith("/add-song")) {
+    if (request.method === "POST") {
       const song = await request.json();
+      console.log("Received song to add:", song);
 
-      if (this.mjSocket) {
-        this.mjSocket.send(song);
+      if (this.hostSocket) {
+        console.log("Sending song to MJ:", song);
+        this.hostSocket.send(JSON.stringify(song));
+      } else {
+        console.log("No MJ socket connected to receive the song.");
       }
 
-      return new Response("OK");
+      return new Response("OK", { status: 200, headers: corsHeaders() });
     }
 
     return new Response("Durable Object ready.", { status: 200 });
   }
+}
+
+function corsHeaders() {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
 }
